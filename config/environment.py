@@ -1,1 +1,2 @@
-db_URI = "postgresql+psycopg2://dujota@localhost:5432/teas_db"
+db_URI = 'postgresql://postgres:Muneera123@localhost:5432/teas_db'
+secret = 'mysecretcode'
