@@ -5,6 +5,7 @@ from models.tea import TeaModel
 
 # Serializers & Validations
 from serializers.tea import TeaSchema, CreateTeaSchema, UpdateTeaSchema
+from serializers.user import UserSchema
 from typing import List
 
 # DB
@@ -32,7 +33,7 @@ def get_single_tea(tea_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/teas", response_model=TeaSchema, status_code=201)
-def create_tea(tea: CreateTeaSchema, db: Session = Depends(get_db)):
+def create_tea(tea: CreateTeaSchema, db: Session = Depends(get_db), user: UserSchema = Depends(get_current_user)):
     new_tea = TeaModel(**tea.dict())# Convert Pydantic model to SQLAlchemy model
     db.add(new_tea)
     db.commit() # basicallt model.save()
@@ -43,7 +44,10 @@ def create_tea(tea: CreateTeaSchema, db: Session = Depends(get_db)):
 
 
 @router.put("/teas/{tea_id}", response_model=TeaSchema)
-def update_tea(tea_id: int, tea: UpdateTeaSchema, db: Session = Depends(get_db)):
+def update_tea(tea_id: int, 
+               tea: UpdateTeaSchema, 
+               db: Session = Depends(get_db), 
+               user: UserSchema = Depends(get_current_user)):
 
     # Find the tea to update
     db_tea = db.query(TeaModel).filter(TeaModel.id == tea_id).first()
@@ -64,7 +68,7 @@ def update_tea(tea_id: int, tea: UpdateTeaSchema, db: Session = Depends(get_db))
     return db_tea
 
 @router.delete("/teas/{tea_id}", status_code=204)
-def delete_tea(tea_id: int, db: Session = Depends(get_db)):
+def delete_tea(tea_id: int, db: Session = Depends(get_db), user: UserSchema = Depends(get_current_user)):
     # Delete a tea by ID
     tea = db.query(TeaModel).filter(TeaModel.id == tea_id).first()
 
