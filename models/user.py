@@ -4,6 +4,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from config.environment import JWT_SECRET
 import jwt
+from sqlalchemy.orm import relationship
 
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
