@@ -11,6 +11,8 @@ psycopg2-binary = "*"
 pydantic = "*"
 psycopg = "*"
 python-dotenv = "*"
+passlib = "*"
+bcrypt = "==4.0.1"
 
 [dev-packages]
 
