@@ -1,10 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from config.environment import db_URI
+from config.environment import DATABASE_URL
 
 # Connect FastAPI with SQLAlchemy
 engine = create_engine(
-    db_URI
+    DATABASE_URL
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

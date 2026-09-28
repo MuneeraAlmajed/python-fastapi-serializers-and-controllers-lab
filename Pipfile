@@ -10,6 +10,7 @@ sqlalchemy = "*"
 psycopg2-binary = "*"
 pydantic = "*"
 psycopg = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
