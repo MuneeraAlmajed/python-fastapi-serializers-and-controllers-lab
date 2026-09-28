@@ -17,6 +17,7 @@ class UserLoginSchema(BaseModel):
 
 # Schema for returning user data (without exposing the password)
 class UserSchema(BaseModel):
+    id:int
     username: str
     email: str
 

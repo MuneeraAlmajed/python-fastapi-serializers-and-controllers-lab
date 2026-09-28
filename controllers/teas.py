@@ -34,10 +34,13 @@ def get_single_tea(tea_id: int, db: Session = Depends(get_db)):
 
 @router.post("/teas", response_model=TeaSchema, status_code=201)
 def create_tea(tea: CreateTeaSchema, db: Session = Depends(get_db), user: UserSchema = Depends(get_current_user)):
-    new_tea = TeaModel(**tea.dict())# Convert Pydantic model to SQLAlchemy model
-    db.add(new_tea)
-    db.commit() # basicallt model.save()
-    db.refresh(new_tea)
+    try:
+      new_tea = TeaModel(**tea.dict(), user_id = user.id)# Convert Pydantic model to SQLAlchemy model
+      db.add(new_tea)
+      db.commit() # basicallt model.save()
+      db.refresh(new_tea)
+    except:
+      raise HTTPException(status_code=422, detail='Unprocessable Entity')
 
     return new_tea
 
@@ -55,6 +58,10 @@ def update_tea(tea_id: int,
     # If tea was not found, raise an error
     if not db_tea:
       raise HTTPException(status_code=404, detail="Tea not found")
+    
+    if not db_tea.user_id == user.id:
+      raise HTTPException(status_code=403, detail="Forbidden")
+
 
     tea_data = tea.dict(exclude_unset=True)
 
@@ -69,12 +76,14 @@ def update_tea(tea_id: int,
 
 @router.delete("/teas/{tea_id}", status_code=204)
 def delete_tea(tea_id: int, db: Session = Depends(get_db), user: UserSchema = Depends(get_current_user)):
-    # Delete a tea by ID
-    tea = db.query(TeaModel).filter(TeaModel.id == tea_id).first()
 
-    # If tea was not found, raise an error
+    tea = db.query(TeaModel).filter(TeaModel.id == tea_id).first()
+    
     if not tea:
       raise HTTPException(status_code=404, detail="Tea not found")
+    
+    if not tea.user_id == user.id:
+          raise HTTPException(status_code=403, detail="Forbidden")
 
     db.delete(tea)
     db.commit()
