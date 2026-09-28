@@ -52,7 +52,6 @@ def update_tea(tea_id: int,
                db: Session = Depends(get_db), 
                user: UserSchema = Depends(get_current_user)):
 
-    # Find the tea to update
     db_tea = db.query(TeaModel).filter(TeaModel.id == tea_id).first()
 
     # If tea was not found, raise an error

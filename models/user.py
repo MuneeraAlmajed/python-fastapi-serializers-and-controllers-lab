@@ -18,6 +18,7 @@ class UserModel(BaseModel):
     password = Column(String, nullable=True)
     
     teas = relationship('TeaModel', back_populates='user')
+    comments = relationship('CommentModel' , back_populates='user')
     
     #Method to hash and store the password
     def set_password(self, password: str):
