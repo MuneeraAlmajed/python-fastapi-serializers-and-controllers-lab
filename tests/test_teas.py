@@ -175,3 +175,75 @@ def test_update_tea_unauthorized(test_app: TestClient, test_db:Session):
     
     assert response.status_code == 403
     
+    
+def test_delete_tea(test_app: TestClient, test_db: Session):
+    user = UserModel(username='deleteUser', email='deleteUser@example.com')
+    user.set_password('password123')
+    test_db.add(user)
+    test_db.commit()
+    
+    tea= TeaModel(
+        name='delete Tea',
+        in_stock=True,
+        rating=4,
+        user_id=user.id
+    )
+    
+    test_db.add(tea)
+    test_db.commit()
+    
+    
+    headers = login(test_app, 'deleteUser', 'password123')
+    
+    repsonse = test_app.delete(f'/api/teas/{tea.id}',
+                               headers=headers)
+    
+    assert repsonse.status_code == 204
+    
+    deleted_tea = test_db.query(TeaModel).filter(TeaModel.id == tea.id).first()
+    
+    assert deleted_tea is None
+    
+def test_delete_tea_not_found(test_app: TestClient, test_db: Session):
+    user = UserModel(username="deleteNotFound", email="deletenotfound@example.com")
+    user.set_password("password123")
+    test_db.add(user)
+    test_db.commit()
+
+    headers = login(test_app, "deleteNotFound", "password123")
+
+    response = test_app.delete(
+        "/api/teas/99999",
+        headers=headers
+    )
+
+    assert response.status_code == 404
+    
+def test_delete_tea_unauthorized(test_app: TestClient, test_db: Session):
+    owner = UserModel(username="deleteOwner", email="deleteowner@example.com")
+    owner.set_password("password123")
+    test_db.add(owner)
+    test_db.commit()
+
+    other_user = UserModel(username="deleteOther", email="deleteother@example.com")
+    other_user.set_password("password123")
+    test_db.add(other_user)
+    test_db.commit()
+
+    tea = TeaModel(
+        name="Unauthorized Delete Tea",
+        in_stock=True,
+        rating=4,
+        user_id=owner.id
+    )
+    test_db.add(tea)
+    test_db.commit()
+
+    headers = login(test_app, "deleteOther", "password123")
+
+    response = test_app.delete(
+        f"/api/teas/{tea.id}",
+        headers=headers
+    )
+
+    assert response.status_code == 403
