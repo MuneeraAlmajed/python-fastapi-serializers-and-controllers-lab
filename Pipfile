@@ -17,6 +17,9 @@ pyjwt = "*"
 alembic = "*"
 
 [dev-packages]
+pytest = "*"
+starlette = "*"
+httpx = "*"
 
 [requires]
 python_version = "3.12"
