@@ -118,3 +118,60 @@ def test_update_tea(test_app: TestClient, test_db:Session):
     assert response.json()['name'] == 'Updated Tea'
     assert response.json()['in_stock'] is False
     assert response.json()['rating'] == 5
+    
+    
+def test_update_tea_not_found(test_app: TestClient, test_db: Session):
+    user=UserModel(username='notFoundUser', email='notfound@example.com')
+    user.set_password('password123')
+    test_db.add(user)
+    test_db.commit()
+    
+    headers = login(test_app, 'notFoundUser', 'password123' )
+    
+    tea_data = {
+        'name': 'Updated Tea',
+        'in_stock': False,
+        'rating': 5
+    }
+    
+    response = test_app.put('/api/teas/99999', headers=headers, json=tea_data)
+    
+    assert response.status_code == 404
+    
+    
+def test_update_tea_unauthorized(test_app: TestClient, test_db:Session):
+    owner = UserModel(username='ownerUser', email='owner@example.com')
+    owner.set_password('password123')
+    test_db.add(owner)
+    test_db.commit()
+    
+    other_user = UserModel(username="otherUser", email="other@example.com")
+    other_user.set_password("password123")
+    test_db.add(other_user)
+    test_db.commit()
+    
+    tea = TeaModel(
+        name="Owner Tea",
+        in_stock=True,
+        rating=3,
+        user_id=owner.id
+    )
+    test_db.add(tea)
+    test_db.commit()
+
+    headers = login(test_app, "otherUser", "password123")
+
+    tea_data = {
+        "name": "Updated Tea",
+        "in_stock": False,
+        "rating": 5
+    }
+
+    response = test_app.put(
+        f"/api/teas/{tea.id}",
+        headers=headers,
+        json=tea_data
+    )
+    
+    assert response.status_code == 403
+    
