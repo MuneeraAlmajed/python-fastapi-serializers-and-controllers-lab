@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Date
 from .base import BaseModel
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
@@ -16,6 +16,7 @@ class UserModel(BaseModel):
     username = Column(String, nullable=False, unique=True)  # Each username must be unique
     email = Column(String, nullable=False, unique=True)  # Each email must be unique
     password = Column(String, nullable=True)
+    birthdate = Column(Date, nullable=True)
     
     teas = relationship('TeaModel', back_populates='user')
     comments = relationship('CommentModel' , back_populates='user')
