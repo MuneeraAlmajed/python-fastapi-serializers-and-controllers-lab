@@ -74,3 +74,47 @@ def test_get_tea_not_found(test_app: TestClient):
     
     assert response.status_code == 404
     
+def test_create_tea_unauthorized(test_app: TestClient):
+    tea_data={
+        'name': 'Unauthorized Tea',
+        'in_stock': True,
+        'rating': 4
+    }
+    
+    response = test_app.post('/api/teas', json=tea_data)
+    
+    assert response.status_code == 401
+    
+def test_update_tea(test_app: TestClient, test_db:Session):
+    user = UserModel(username='updateUser', email='update@example.com')
+    user.set_password('password123')
+    test_db.add(user)
+    test_db.commit()
+    
+    tea = TeaModel(
+        name='Old Tea',
+        in_stock=True,
+        rating=3,
+        user_id=user.id
+    )
+    
+    test_db.add(tea)
+    test_db.commit()
+    
+    headers = login(test_app, 'updateUser', 'password123')
+    
+    tea_data = {
+        'name': 'Updated Tea',
+        'in_stock': False,
+        'rating': 5
+    }
+    
+    response = test_app.put(f'/api/teas/{tea.id}',
+                            headers=headers,
+                            json=tea_data
+                            )
+    
+    assert response.status_code == 200
+    assert response.json()['name'] == 'Updated Tea'
+    assert response.json()['in_stock'] is False
+    assert response.json()['rating'] == 5
